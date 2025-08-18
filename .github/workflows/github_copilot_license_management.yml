@@ -8,6 +8,7 @@ on:
 # This workflow uses the GitHub Token to comment on the issues and close them
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
 
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
@@ -30,7 +31,7 @@ jobs:
         uses: peter-murray/workflow-application-token-action@v3
         with:
           application_id: ${{ secrets.APPLICATION_ID }}
-          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}      
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
       # This step assigns a GitHub Copilot license to the user who created the issue
       - name: Assign GitHub Copilot license
         id: assign_license
@@ -38,12 +39,13 @@ jobs:
         uses: actions/github-script@v7
         env:
           GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }} 
+          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();            
-            const response = await octokit.request('POST /orgs/{org}/copilot/billing/selected_users', {
-              org: context.repo.owner,
+            const response = await octokit.request('POST /enterprises/{org}/copilot/billing/selected_users', {
+              org: process.env.ENTERPRISE_ID,
               selected_usernames: [context.payload.sender.login],
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
@@ -122,18 +124,23 @@ jobs:
         uses: actions/github-script@v7
         env:
           GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }} 
+          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();            
-            const response = await octokit.request('DELETE /orgs/{org}/copilot/billing/selected_users', {
-              org: context.repo.owner,
-              selected_usernames: [context.payload.sender.login],
+            const response = await octokit.graphql(`query {
+              user(login: "${context.payload.sender.login}") {
+                email
+                id
+                login
+              }
+            }`, {
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            return response.status >= 200 && response.status < 300 ? 'success' : 'failure'
+            return response.status >= 200 && response.status < 300 ? response.user.email : 'failure'
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
         if: steps.remove_license.outcome == 'success'
