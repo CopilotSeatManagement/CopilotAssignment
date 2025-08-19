@@ -162,7 +162,7 @@ jobs:
       # This step invites user to enterprise
       - name: Invite enterprise user
         id: invite_login_email
-        if: steps.find_login_email.outcome != 'failure' and steps.find_enterprise.outcome != 'failure'
+        if: steps.find_login_email.outcome != 'failure' && steps.find_enterprise.outcome != 'failure'
         uses: actions/github-script@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
