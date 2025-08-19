@@ -118,7 +118,7 @@ jobs:
           app-id: ${{ secrets.APPLICATION_ID }}
           private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
+          repositories: ${{ github.event.repository.name }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
