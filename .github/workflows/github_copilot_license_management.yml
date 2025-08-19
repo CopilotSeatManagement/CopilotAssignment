@@ -149,7 +149,7 @@ jobs:
             const { Octokit } = require("@octokit/action");
             const octokit = new Octokit();
             const response = await octokit.graphql(`query {
-              enterprise(slug: "${process.env.ENTERPRISE_ID}") {
+              enterprise(slug: "criticalsoftware") {
                 id
               }
             }`, {
