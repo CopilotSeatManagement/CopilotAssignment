@@ -113,22 +113,15 @@ jobs:
       # This step gets the token
       - name: Generate a token
         id: generate-token
-        uses: actions/github-script@v7
+        uses: octokit/auth-app@v4
         with:
           script: |
-            const { createAppAuth } = require("@octokit/auth-app");
-            const jwt = require("jsonwebtoken");
-            const appId = process.env.APP_ID;
-            const privateKey = process.env.PRIVATE_KEY;
-            // JWT expiration (max 10 minutes)
-            const now = Math.floor(Date.now() / 1000);
-            const payload = {
-              iat: now - 60, // issued at time, 60 seconds in the past to allow for clock drift
-              exp: now + (10 * 60), // expires after 10 minutes
-              iss: appId // GitHub App's identifier
-            };
-            const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
-            return token;
+            const auth = createAppAuth({
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY,
+              installationId: process.env.INSTALLATION_ID
+            });
+            return auth({ type: "installation" });
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
