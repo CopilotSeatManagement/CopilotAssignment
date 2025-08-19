@@ -109,23 +109,22 @@ jobs:
         with:
           node-version: 20
       # This step installs the @octokit/action npm package
-      - run: npm install @octokit/action
+      - run: npm install @octokit/action @octokit/auth-app
       # This step gets the token
       - name: Generate a token
         id: generate-token
-        uses: octokit/auth-app@v4
+        uses: actions/github-script@v7
         with:
           script: |
+            const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
               appId: process.env.APP_ID,
-              privateKey: process.env.PRIVATE_KEY,
-              installationId: process.env.INSTALLATION_ID
+              privateKey: process.env.PRIVATE_KEY
             });
             return auth({ type: "installation" });
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
