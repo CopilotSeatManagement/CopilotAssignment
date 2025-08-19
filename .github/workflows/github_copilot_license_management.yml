@@ -149,7 +149,7 @@ jobs:
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();            
             const response_invite = await octokit.graphql(`mutation {
-              inviteEnterpriseMember(input: { email: "${steps.find_login_email.outcome}"}) {
+              inviteEnterpriseMember(input: { email: "${steps.find_login_email.outcome}" }) {
                 clientMutationId
                 invitation {
                   email
@@ -168,7 +168,7 @@ jobs:
             return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure'
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
-        if: steps.invite_login.outcome != 'failure'
+        if: steps.invite_login_email.outcome != 'failure'
         uses: actions/github-script@v7
         with:
           script: |
