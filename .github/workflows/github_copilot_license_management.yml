@@ -111,8 +111,8 @@ jobs:
       # This step installs the @octokit/action npm package
       - run: npm install @octokit/action
       # This step finds the user's login email
-      - name: Find login email
-        id: find_login_email
+      - name: Invite login email
+        id: invite_login_email
         continue-on-error: true
         uses: actions/github-script@v7
         env:
@@ -134,22 +134,9 @@ jobs:
                 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
               }
             })
-            
-            return response_find.status >= 200 && response_find.status < 300 ? response_find.user.email : 'failure'
-      # This step invites user to enterprise
-      - name: Invite enterprise user
-        id: invite_login_email
-        if: steps.find_login_email.outcome != 'failure'
-        uses: actions/github-script@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
-        with:
-          script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit();            
+
             const response_invite = await octokit.graphql(`mutation {
-              inviteEnterpriseMember(input: { email: "${steps.find_login_email.outcome}" }) {
+              inviteEnterpriseMember(input: { email: "${response_find.user.email}" }) {
                 clientMutationId
                 invitation {
                   email
@@ -165,10 +152,11 @@ jobs:
                 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
               }
             });
+            
             return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure'
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
-        if: steps.invite_login_email.outcome != 'failure'
+        if: steps.invite_login_email.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
