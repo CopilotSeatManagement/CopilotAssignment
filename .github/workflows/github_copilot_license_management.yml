@@ -135,9 +135,8 @@ jobs:
               }
             })
             const userEmail = response_find.user.email;
-            const enterpriseId = process.env.ENTERPRISE_ID || '${{ secrets.ENTERPRISE_ID }}';
             const response_invite = await octokit.graphql(`mutation {
-              inviteEnterpriseMember(input: { email: "${userEmail}", enterpriseId: "${enterpriseId}" }) {
+              inviteEnterpriseMember(input: { email: "${userEmail}", enterpriseId: 'E_kgDOAAMYHA' }) {
                 clientMutationId
                 invitation {
                   email
