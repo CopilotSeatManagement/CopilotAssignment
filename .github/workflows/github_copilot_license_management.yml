@@ -110,14 +110,20 @@ jobs:
           node-version: 20
       # This step installs the @octokit/action npm package
       - run: npm install @octokit/action
+      # This step gets the token
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");            
@@ -131,7 +137,7 @@ jobs:
             }`, {
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28',
-                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+                'Authorization': `Bearer ${process.env.GH_TOKEN}`
               }
             })
 
@@ -149,7 +155,7 @@ jobs:
             }`, {
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28',
-                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+                'Authorization': `Bearer ${process.env.GH_TOKEN}`
               }
             });
             
