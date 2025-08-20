@@ -11,8 +11,6 @@ env:
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
   ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
   ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
   assign_github_copilot_license:
@@ -122,48 +120,18 @@ jobs:
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
               appId: process.env.APP_ID,
-              privateKey: process.env.PRIVATE_KEY
-            });
-            const { token_ } = await auth({ type: "app" });
-
-            const response = await fetch("https://api.github.com/app/installations", {
-              headers: {
-                Authorization: `Bearer ${token_}`,
-                Accept: "application/vnd.github+json"
-              }
-            });
-
-            const installations = await response.json();
-            console.log(installations);
-            // Find the installation for your org or repo
-            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
-
-            if (installation) {
-              console.log(`Installation ID: ${installation.id}`);
-              const auth2 = createAppAuth({
-              appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY,
-              installationId: installation.id
-              });
-              const { token2 } = await auth2({ type: "installation", installationId: installation.id });
-
-              const auth3 = createAppAuth({
-                appId: process.env.APP_ID,
-                privateKey: process.env.PRIVATE_KEY,
-                clientId: process.env.CLIENT_ID,
-                clientSecret: process.env.CLIENT_SECRET
-              });
-
-              const token = await auth({ type: "oauth-app" });
-              return token;
+              clientId: process.env.CLIENT_ID,
+              clientSecret: process.env.CLIENT_SECRET
+            });
+            const { token } = await auth({ type: "oauth-app" });
+            if (!token) {
+              throw new Error("Failed to generate token");
             }
-            return null;
-
+            return token;
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
-          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       # This step finds the user's login email
