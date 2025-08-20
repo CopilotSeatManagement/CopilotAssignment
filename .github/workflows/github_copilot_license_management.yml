@@ -139,10 +139,9 @@ jobs:
             });
 
             const installations = await response.json();
-            console.log(installations);
             // Find the installation for your org or repo
             const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
-
+            console.log(installation);
             return installation ? installation.id : null;
       - name: Get Installation Token
         id: get-installation-token
@@ -154,10 +153,11 @@ jobs:
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          INSTALLATION_ID: ${{ steps.generate-token.outputs.token }}
+          INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
+            console.log(process.env.INSTALLATION_ID);
             const auth = createAppAuth({
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY,
