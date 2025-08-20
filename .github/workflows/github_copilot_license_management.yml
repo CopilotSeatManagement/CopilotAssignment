@@ -138,12 +138,12 @@ jobs:
             console.log(`Installation ID: ${installation.id}`);
 
 
-            const auth = createAppAuth({
+            const auth2 = createAppAuth({
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: installation.id
             });
-            const { token } = await auth({ type: "installation", installationId: installation.id });
+            const { token } = await auth2({ type: "installation", installationId: installation.id });
             return token;
 
         env:
