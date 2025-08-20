@@ -11,7 +11,7 @@ env:
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
   ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
   ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
-# This workflow contains two jobs: assign_github_copilot_license and invite_enterprise_member
+# This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
   assign_github_copilot_license:
     name: Assign GitHub Copilot License
@@ -98,7 +98,7 @@ jobs:
               }
             });
 
-  invite_enterprise_member:
+  remove_github_copilot_license:
     name: Remove GitHub Copilot License
     # This job runs on the latest version of Ubuntu
     runs-on: ubuntu-latest
@@ -164,7 +164,7 @@ jobs:
               clientId: process.env.CLIENT_ID,
               clientSecret: process.env.CLIENT_SECRET
             });
-            const { token } = await auth({ type: "oauth-app"});
+            const { token } = await auth({ type: "oauth"});
             console.log(`Bearer ${token}`);
             return token ? token : null;
       # This step finds the user's login email
@@ -256,7 +256,7 @@ jobs:
             });
       # If the previous step failed, this step comments on the issue to notify about the failure
       - name: Comment GitHub Issue on failure
-        if: steps.invite_login_email.outcome == 'failure'
+        if: steps.invite_login_email.outcome == 'failure'        
         uses: actions/github-script@v7
         with:
           script: |
