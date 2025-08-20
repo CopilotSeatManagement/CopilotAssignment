@@ -340,9 +340,6 @@ jobs:
               installationId: process.env.INSTALLATION_ID
             });
             const { token } = await auth({ type: "installation", });
-            const payload = token.split('.')[1];
-            const decoded = Buffer.from(payload, 'base64').toString('utf8');
-            console.log('Decoded GH_TOKEN payload:', decoded);
             return token ? token : null;
       # This step finds the user's login email
       - name: Invite login email
@@ -354,7 +351,14 @@ jobs:
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log(`Bearer ${process.env.GH_TOKEN}`);
+            const token = process.env.GH_TOKEN;
+            if (!token) {
+              console.log("No GH_TOKEN found.");
+              return;
+            }
+            const payload = token.split('.')[1];
+            const decoded = Buffer.from(payload, 'base64').toString('utf8');
+            console.log('Decoded GH_TOKEN payload:', decoded);
             const octokit = new Octokit();
             const response_find = await octokit.graphql(`query {
               user(login: "${context.payload.sender.login}") {
