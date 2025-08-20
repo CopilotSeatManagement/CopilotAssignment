@@ -9,9 +9,8 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
-  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-  INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
-
+  APP_ID: ${{ secrets.APP_ID }}
+  APPLICATION_PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
   assign_github_copilot_license:
@@ -127,8 +126,6 @@ jobs:
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
@@ -152,7 +149,7 @@ jobs:
                 'Authorization': `Bearer ${process.env.GH_TOKEN}`
               }
             })
-
+            console.log(${process.env.ENTERPRISE_ID});
             const response_invite = await octokit.graphql(`mutation {
               inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${process.env.ENTERPRISE_ID}" }) {
                 clientMutationId
