@@ -164,7 +164,7 @@ jobs:
               clientId: process.env.CLIENT_ID,
               clientSecret: process.env.CLIENT_SECRET
             });
-            const { token } = await auth({ type: "oauth"});
+            const { token } = await auth({ type: "oauth-app"});
             console.log(`Bearer ${token}`);
             return token ? token : null;
       # This step finds the user's login email
