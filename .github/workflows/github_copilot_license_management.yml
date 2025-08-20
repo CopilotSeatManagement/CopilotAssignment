@@ -143,8 +143,8 @@ jobs:
               privateKey: process.env.PRIVATE_KEY,
               installationId: installation.id
             });
-            const { token } = await auth2({ type: "installation", installationId: installation.id });
-            return token;
+            const { token2 } = await auth2({ type: "installation", installationId: installation.id });
+            return token2;
 
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
