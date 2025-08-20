@@ -132,6 +132,7 @@ jobs:
             });
 
             const installations = await response.json();
+            console.log(installations);
             // Find the installation for your org or repo
             const installation = installations.find(i => i.account.login === process.env.ORGANIZATION_NAME); // or match by account.id, etc.
 
@@ -145,7 +146,6 @@ jobs:
               const { token2 } = await auth2({ type: "installation", installationId: installation.id });
               return token2;
             }
-            console.log(`No installation found for org/repo`);
             return null;
 
         env:
