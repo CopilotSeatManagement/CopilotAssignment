@@ -145,7 +145,7 @@ jobs:
               });
               const { token2 } = await auth2({ type: "installation", installationId: installation.id });
 
-              if token2) {
+              if (token2) {
                 console.log(`Generated token: ${token2}`);
                 return token2;
               } else {
