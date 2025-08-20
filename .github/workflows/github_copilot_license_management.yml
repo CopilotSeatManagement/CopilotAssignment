@@ -147,25 +147,32 @@ jobs:
                 'Authorization': `Bearer ${process.env.GH_TOKEN}`
               }
             })
-            const response_invite = await octokit.graphql(`mutation {
-              inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${process.env.ENTERPRISE_ID}" }) {
-                clientMutationId
-                invitation {
-                  email
-                  invitee {
-                    login
-                    id
+            if (response_find.user.email) {
+              // Invite the user to the enterprise
+              console.log(`Inviting ${response_find.user.email} to the enterprise ${process.env.ENTERPRISE_ID}`);
+              const response_invite = await octokit.graphql(`mutation {
+                inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${process.env.ENTERPRISE_ID}" }) {
+                  clientMutationId
+                  invitation {
+                    email
+                    invitee {
+                      login
+                      id
+                    }
                   }
                 }
-              }
-            }`, {
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28',
-                'Authorization': `Bearer ${process.env.GH_TOKEN}`
-              }
-            });
-            
-            return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure'
+              }`, {
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'Authorization': `Bearer ${process.env.GH_TOKEN}`
+                }
+              });
+
+              return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure';
+            }
+            else {
+              return 'failure';
+            }
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
         if: steps.invite_login_email.outcome == 'success'
