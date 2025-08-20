@@ -175,7 +175,7 @@ jobs:
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log(`Bearer ${process.env.GH_TOKEN})            
+            console.log(process.env.GH_TOKEN)            
             const octokit = new Octokit();            
             const response_find = await octokit.graphql(`query {
               user(login: "${context.payload.sender.login}") {
