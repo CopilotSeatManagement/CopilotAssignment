@@ -122,11 +122,11 @@ jobs:
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY
             });
-            const { token_ } = await auth({ type: "app" });
+            const { token } = await auth({ type: "app" });
 
             const response = await fetch("https://api.github.com/app/installations", {
               headers: {
-                Authorization: `Bearer ${token_}`,
+                Authorization: `Bearer ${token}`,
                 Accept: "application/vnd.github+json"
               }
             });
