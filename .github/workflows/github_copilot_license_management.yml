@@ -353,6 +353,8 @@ jobs:
             const { Octokit } = require("@octokit/action");
             const token = process.env.GH_TOKEN;
             if (token) {
+              console.log('GH_TOKEN type:', typeof(token));
+              console.log('GH_TOKEN value:', token);
               const payload = token.split('.')[1];
               const decoded = Buffer.from(payload, 'base64').toString('utf8');
               console.log('Decoded GH_TOKEN payload:', decoded);
