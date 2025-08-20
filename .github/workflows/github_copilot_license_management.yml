@@ -134,7 +134,7 @@ jobs:
             const installations = await response.json();
             console.log(installations);
             // Find the installation for your org or repo
-            const installation = installations.find(i => i.account.login === process.env.ORGANIZATION_NAME); // or match by account.id, etc.
+            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
 
             if (installation) {
               console.log(`Installation ID: ${installation.id}`);
@@ -152,6 +152,7 @@ jobs:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
