@@ -1,8 +1,8 @@
 ---
-name: 'Request Enterprise Invitation'
+name: 'Request CSW Enterprise Invitation'
 about: 'Use this issue template to request enterprise invitation.'
 title: 'Request Enterprise Invitation'
-labels: 'enterprise-invitation' #This label is required and needs to be created in the GitHub Repository, it is used to trigger the workflow that removes GitHub Copilot licenses.
+labels: 'invitation-request' #This label is required and needs to be created in the GitHub Repository, it is used to trigger the workflow that removes GitHub Copilot licenses.
 ---
 **Requesting enterprise invitation**
 

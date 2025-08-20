@@ -164,7 +164,181 @@ jobs:
               clientId: process.env.CLIENT_ID,
               clientSecret: process.env.CLIENT_SECRET
             });
-            const { token } = await auth({ type: "oauth"});
+            const { token } = await auth({ type: "oauth-app"});
+            console.log(`Bearer ${token}`);
+            return token ? token : null;
+      # This step finds the user's login email
+      - name: Invite login email
+        id: invite_login_email
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ steps.get-oauth-token.outputs.result }}
+        with:
+          script: |
+            const { Octokit } = require("@octokit/action");
+            console.log(`Bearer ${process.env.GH_TOKEN}`);
+            const octokit = new Octokit();
+            const response_find = await octokit.graphql(`query {
+              user(login: "${context.payload.sender.login}") {
+                email
+                id
+                login
+              }
+            }`, {
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28',
+                'Authorization': `Bearer ${process.env.GH_TOKEN}`
+              }
+            })
+            if (response_find.user.email) {
+              // Invite the user to the enterprise
+              const response_find_enterprise = await octokit.graphql(`query {
+                enterprise(slug: "${process.env.ENTERPRISE_NAME}") {
+                  id
+                  name
+                }
+              }`, {
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'Authorization': `Bearer ${process.env.GH_TOKEN}`
+                }
+              });
+              console.log(response_find_enterprise);
+              const response_invite = await octokit.graphql(`mutation {
+                inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${response_find_enterprise.id}" }) {
+                  clientMutationId
+                  invitation {
+                    email
+                    invitee {
+                      login
+                      id
+                    }
+                  }
+                }
+              }`, {
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'Authorization': `Bearer ${process.env.GH_TOKEN}`
+                }
+              });
+
+              return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure';
+            }
+            else {
+              return 'failure';
+            }
+      # If the previous step was successful, this step comments on the issue and closes it
+      - name: Comment and close GitHub Issue on success
+        if: steps.invite_login_email.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { Octokit } = require("@octokit/action");            
+            const octokit = new Octokit(); 
+            await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Successfully removed the GitHub Copilot license.',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            });
+            await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            });
+      # If the previous step failed, this step comments on the issue to notify about the failure
+      - name: Comment GitHub Issue on failure
+        if: steps.invite_login_email.outcome == 'failure'        
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { Octokit } = require("@octokit/action");            
+            const octokit = new Octokit(); 
+            await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Failed removing the GitHub Copilot license. Please contact the organization administrator.',
+              content: 'confused',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            });
+  request_csw_enterprise_invitation:
+    name: Request CSW Enterprise Invitation
+    # This job runs on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+    # This job only runs if the label added to the issue is 'copilot-remove'
+    if: github.event.label.name == 'copilot-remove'
+    steps:
+      # This step sets up Node.js version 20
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # This step installs the @octokit/action npm package
+      - run: npm install @octokit/action @octokit/auth-app
+      # This step gets the token
+      - name: Generate a token
+        id: generate-token
+        uses: actions/github-script@v7
+        env:
+          APP_ID: ${{ secrets.APPLICATION_ID }}
+          PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        with:
+          script: |
+            const { createAppAuth } = require("@octokit/auth-app");
+            const auth = createAppAuth({
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY
+            });
+            const { token } = await auth({ type: "app" });
+
+            const response = await fetch("https://api.github.com/app/installations", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github+json"
+              }
+            });
+
+            const installations = await response.json();
+            // Find the installation for your org or repo
+            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
+            console.log(installation);
+            return installation ? installation.id : null;
+      - name: Get OAuth Token
+        id: get-oauth-token
+        uses: actions/github-script@v7
+        env:
+          APP_ID: ${{ secrets.APPLICATION_ID }}
+          PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
+        with:
+          script: |
+            const { createAppAuth } = require("@octokit/auth-app");
+            console.log(process.env.INSTALLATION_ID);
+            const auth = createAppAuth({
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY,
+              clientId: process.env.CLIENT_ID,
+              clientSecret: process.env.CLIENT_SECRET
+            });
+            const { token } = await auth({ type: "oauth-app"});
             console.log(`Bearer ${token}`);
             return token ? token : null;
       # This step finds the user's login email
