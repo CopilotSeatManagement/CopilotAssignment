@@ -115,6 +115,13 @@ jobs:
       - name: Generate a token
         id: generate-token
         uses: actions/github-script@v7
+        env:
+          APP_ID: ${{ secrets.APPLICATION_ID }}
+          PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
@@ -136,25 +143,10 @@ jobs:
             // Find the installation for your org or repo
             const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
 
-            if (installation) {
-              console.log(`Installation ID: ${installation.id}`);
-              const auth2 = createAppAuth({
-              appId: process.env.APP_ID,
-              privateKey: process.env.PRIVATE_KEY,
-              installationId: installation.id
-              });
-              const { token2 } = await auth2({ type: "installation", installationId: installation.id });
-
-              if (token2) {
-                console.log(`Generated token: ${token2}`);
-                return token2;
-              } else {
-                console.error("Failed to generate token for installation.");
-                return null;
-              }
-            }
-            return null;
-
+            return installation ? installation.id : null;
+      - name: Get Installation Token
+        id: get-installation-token
+        uses: actions/github-script@v7
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
@@ -162,13 +154,31 @@ jobs:
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          INSTALLATION_ID: ${{ steps.generate-token.outputs.token }}
+        with:
+          script: |
+            const { createAppAuth } = require("@octokit/auth-app");
+            const auth = createAppAuth({
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY,
+              installationId: process.env.INSTALLATION_ID
+            });
+            const { token } = await auth({ type: "installation", installationId: process.env.INSTALLATION_ID });
+
+              if (token) {
+                console.log(`Generated token: ${token}`);
+              } else {
+                console.error("Failed to generate token for installation.");
+              }
+            }
+            return token;
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GH_TOKEN: ${{ steps.get-installation-token.outputs.token }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");            
