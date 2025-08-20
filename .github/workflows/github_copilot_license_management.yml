@@ -172,7 +172,7 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          GH_TOKEN: ${{ steps.get-installation-token.outputs.token }}
+          GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");
