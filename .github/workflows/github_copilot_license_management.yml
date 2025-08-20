@@ -135,16 +135,18 @@ jobs:
             // Find the installation for your org or repo
             const installation = installations.find(i => i.account.login === process.env.ORGANIZATION_NAME); // or match by account.id, etc.
 
-            console.log(`Installation ID: ${installation.id}`);
-
-
-            const auth2 = createAppAuth({
+            if (installation) {
+              console.log(`Installation ID: ${installation.id}`);
+              const auth2 = createAppAuth({
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: installation.id
-            });
-            const { token2 } = await auth2({ type: "installation", installationId: installation.id });
-            return token2;
+              });
+              const { token2 } = await auth2({ type: "installation", installationId: installation.id });
+              return token2;
+            }
+            console.log(`No installation found for org/repo`);
+            return null;
 
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
