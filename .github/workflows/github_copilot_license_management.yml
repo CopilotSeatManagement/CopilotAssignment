@@ -29,10 +29,10 @@ jobs:
       # This step gets a GitHub App installation access token
       - name: Get Token
         id: get_workflow_token
-        uses: actions/create-github-app-token@v1
+        uses: peter-murray/workflow-application-token-action@v3
         with:
-          app-id: ${{ secrets.APPLICATION_ID }}
-          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
       # This step assigns a GitHub Copilot license to the user who created the issue
       - name: Assign GitHub Copilot license
         id: assign_license
@@ -273,6 +273,7 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             });
+  
   request_csw_enterprise_invitation:
     name: Request CSW Enterprise Invitation
     # This job runs on the latest version of Ubuntu
@@ -315,7 +316,7 @@ jobs:
 
             const installations = await response.json();
             // Find the installation for your org or repo
-            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
+            const installation = installations.find(i => i.target_type === "Enterprise" && i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
             console.log(installation);
             return installation ? installation.id : null;
       - name: Get Token
