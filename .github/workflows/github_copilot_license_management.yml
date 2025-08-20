@@ -164,6 +164,7 @@ jobs:
               installationId: process.env.INSTALLATION_ID
             });
             const { token } = await auth({ type: "installation", installationId: process.env.INSTALLATION_ID });
+            console.log(`Bearer ${token}`);
             return token ? token : null;
       # This step finds the user's login email
       - name: Invite login email
@@ -175,8 +176,8 @@ jobs:
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log(process.env.GH_TOKEN)            
-            const octokit = new Octokit();            
+            console.log(`Bearer ${process.env.GH_TOKEN}`);
+            const octokit = new Octokit();
             const response_find = await octokit.graphql(`query {
               user(login: "${context.payload.sender.login}") {
                 email
