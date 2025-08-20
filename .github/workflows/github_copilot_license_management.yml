@@ -367,21 +367,9 @@ jobs:
               }
             })
             if (response_find.user.email) {
-              // Invite the user to the enterprise
-              const response_find_enterprise = await octokit.graphql(`query {
-                enterprise(slug: "${process.env.ENTERPRISE_NAME}") {
-                  id
-                  name
-                }
-              }`, {
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28',
-                  'Authorization': `Bearer ${process.env.GH_TOKEN}`
-                }
-              });
-              console.log(response_find_enterprise);
+              console.log("Enterprise ID:", process.env.ENTERPRISE_ID);
               const response_invite = await octokit.graphql(`mutation {
-                inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${response_find_enterprise.id}" }) {
+                inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${process.env.ENTERPRISE_ID}" }) {
                   clientMutationId
                   invitation {
                     email
