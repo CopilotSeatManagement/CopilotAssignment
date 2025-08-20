@@ -9,6 +9,8 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
 
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
@@ -121,10 +123,12 @@ jobs:
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY
             });
-            return auth({ type: "installation" });
+            return auth({ type: "app" });
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          INSTALLATION_ID: ${{ secrets.INSTALLATION_ID }}
       # This step finds the user's login email
       - name: Invite login email
         id: invite_login_email
