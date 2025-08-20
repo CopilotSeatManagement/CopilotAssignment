@@ -276,8 +276,8 @@ jobs:
     name: Request CSW Enterprise Invitation
     # This job runs on the latest version of Ubuntu
     runs-on: ubuntu-latest
-    # This job only runs if the label added to the issue is 'copilot-remove'
-    if: github.event.label.name == 'copilot-remove'
+    # This job only runs if the label added to the issue is 'invitation-request'
+    if: github.event.label.name == 'invitation-request'
     steps:
       # This step sets up Node.js version 20
       - uses: actions/setup-node@v4
