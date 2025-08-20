@@ -356,8 +356,12 @@ jobs:
               console.log('GH_TOKEN type:', typeof(token));
               console.log('GH_TOKEN value:', token);
               const payload = token.split('.')[1];
-              const decoded = Buffer.from(payload, 'base64').toString('utf8');
-              console.log('Decoded GH_TOKEN payload:', decoded);
+              try {
+                const decoded = Buffer.from(payload, 'base64').toString('utf8');
+                console.log('Decoded GH_TOKEN payload:', decoded);
+              } catch (e) {
+                console.log('Failed to decode GH_TOKEN payload:', e.message);
+              }
               const octokit = new Octokit();
               const response_find = await octokit.graphql(`query {
                 user(login: "${context.payload.sender.login}") {
