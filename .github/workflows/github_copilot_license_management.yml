@@ -41,12 +41,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }} 
           ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();            
             const response = await octokit.request('POST /enterprises/{org}/copilot/billing/selected_users', {
-              org: process.env.ENTERPRISE_ID,
+              org: process.env.ENTERPRISE_NAME,
               selected_usernames: [context.payload.sender.login],
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
@@ -317,8 +318,8 @@ jobs:
             const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
             console.log(installation);
             return installation ? installation.id : null;
-      - name: Get OAuth Token
-        id: get-oauth-token
+      - name: Get Token
+        id: get-token
         uses: actions/github-script@v7
         env:
           APP_ID: ${{ secrets.APPLICATION_ID }}
@@ -335,10 +336,9 @@ jobs:
             const auth = createAppAuth({
               appId: process.env.APP_ID,
               privateKey: process.env.PRIVATE_KEY,
-              clientId: process.env.CLIENT_ID,
-              clientSecret: process.env.CLIENT_SECRET
+              installationId: process.env.INSTALLATION_ID
             });
-            const { token } = await auth({ type: "oauth-app"});
+            const { token } = await auth({ type: "installation", installationId: process.env.INSTALLATION_ID });
             console.log(`Bearer ${token}`);
             return token ? token : null;
       # This step finds the user's login email
@@ -347,7 +347,7 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          GH_TOKEN: ${{ steps.get-oauth-token.outputs.result }}
+          GH_TOKEN: ${{ steps.get-token.outputs.result }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");
