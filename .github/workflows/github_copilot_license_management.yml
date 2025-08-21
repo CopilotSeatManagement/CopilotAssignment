@@ -7,7 +7,6 @@ on:
 
 # This workflow uses the GitHub Token to comment on the issues and close them
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
   ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
@@ -84,13 +83,13 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          GITHUB_TOKEN: ${{ steps.get-installation-token.outputs.result }}
+          INSTALLATION_TOKEN: ${{ steps.get-installation-token.outputs.result }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log("Github token length: ", process.env.GITHUB_TOKEN.length);
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            console.log("Github token length: ", process.env.INSTALLATION_TOKEN.length);
+            const octokit = new Octokit({ auth: process.env.INSTALLATION_TOKEN });
             const login = context.payload.sender.login;
             const response = await octokit.request('POST /enterprises/{enterprise}/copilot/selected_users', {
               enterprise: process.env.ENTERPRISE_NAME,
