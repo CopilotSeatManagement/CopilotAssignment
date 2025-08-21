@@ -85,7 +85,7 @@ jobs:
           # Remove leading and trailing quotes if present
           CLEAN_TOKEN=$(echo '${{ steps.get-installation-token.outputs.result }}' | sed 's/^"\(.*\)"$/\1/')
 
-          curl -X POST "https://api.github.com/orgs/${{ secrets.ENTERPRISE_NAME }}/copilot/selected_users" \
+          curl -X POST "https://api.github.com/orgs/${{ secrets.ENTERPRISE_NAME }}/copilot/billing/selected_users" \
           -H "Authorization: Bearer ${CLEAN_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
