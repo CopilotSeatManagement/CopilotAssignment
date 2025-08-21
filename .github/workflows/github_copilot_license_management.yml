@@ -361,7 +361,7 @@ jobs:
                   'X-GitHub-Api-Version': '2022-11-28',
                   'Authorization': `Bearer ${process.env.GH_TOKEN}`
                 }
-              })
+              });
               console.log(response_find);
               return response_find.user.email;
       # This step finds the enterprise id
@@ -393,13 +393,13 @@ jobs:
         id: invite_user_to_enterprise
         env:
           GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
-          ENTERPRISE_ID: ${{ steps.get_enterprise_id.outputs.result }}
+          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
         run: |
           curl -X POST -H "Authorization: Bearer ${{ steps.get-installation-token.outputs.result }}" \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/graphql
-          -d '{"query":"mutation { inviteEnterpriseMember(input: { email: "${{ steps.get_login_email.outputs.result }}", enterpriseId: "${{ steps.get_enterprise_id.outputs.result }}" }) { clientMutationId invitation { email invitee { login id } } } }"}'
+          -d '{"query":"mutation { inviteEnterpriseMember(input: { email: "${{ steps.get_login_email.outputs.result }}", enterpriseId: "${{ secrets.ENTERPRISE_ID }}" }) { clientMutationId invitation { email invitee { login id } } } }"}'
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
         if: steps.invite_user_to_enterprise.outcome == 'success'
