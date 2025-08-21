@@ -31,7 +31,7 @@ jobs:
         id: generate-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
@@ -41,7 +41,7 @@ jobs:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY
             });
             const { token } = await auth({ type: "app" });
@@ -63,7 +63,7 @@ jobs:
         id: get-installation-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
@@ -71,7 +71,7 @@ jobs:
             const { createAppAuth } = require("@octokit/auth-app");
             console.log(process.env.INSTALLATION_ID);
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: process.env.INSTALLATION_ID
             });
@@ -162,7 +162,7 @@ jobs:
         id: generate-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
@@ -172,7 +172,7 @@ jobs:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY
             });
             const { token } = await auth({ type: "app" });
@@ -193,14 +193,14 @@ jobs:
         id: get-installation-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: process.env.INSTALLATION_ID
             });
@@ -330,7 +330,7 @@ jobs:
         id: generate-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
@@ -340,7 +340,7 @@ jobs:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY
             });
             const { token } = await auth({ type: "app" });
@@ -362,7 +362,7 @@ jobs:
         id: get-installation-token
         uses: actions/github-script@v7
         env:
-          APP_ID: ${{ secrets.APPLICATION_ID }}
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
@@ -374,7 +374,7 @@ jobs:
             const { createAppAuth } = require("@octokit/auth-app");
             console.log(process.env.INSTALLATION_ID);
             const auth = createAppAuth({
-              appId: process.env.APP_ID,
+              appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: process.env.INSTALLATION_ID
             });
