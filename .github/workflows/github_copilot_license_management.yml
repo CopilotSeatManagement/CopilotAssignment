@@ -417,6 +417,8 @@ jobs:
           script: |
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();
+            const email = `${{ steps.get_login_email.outputs.result }}`;
+            console.log('User email:', email);
             if (!email.endsWith('@criticalsoftware.com')) { 
               await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
                 issue_number: context.issue.number,
