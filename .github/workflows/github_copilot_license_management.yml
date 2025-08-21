@@ -364,6 +364,9 @@ jobs:
               });
               console.log(response_find);
               return response_find.user.email;
+            } else {
+              return null;
+            }
       # This step finds the enterprise id
       - name: Get Enterprise ID
         id: get_enterprise_id
