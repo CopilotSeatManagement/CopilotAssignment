@@ -396,13 +396,14 @@ jobs:
         id: invite_user_to_enterprise
         env:
           GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
-          ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
         run: |
+          EMAIL="${{ steps.get_login_email.outputs.result }}"
+          ENTERPRISE_ID="${{ secrets.ENTERPRISE_ID }}"
           curl -X POST \
             -H "Authorization: Bearer ${{ steps.get-installation-token.outputs.result }}" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            -d '{"query":"mutation { inviteEnterpriseMember(input: { email: \"${{ steps.get_login_email.outputs.result }}\", enterpriseId: \"${{ secrets.ENTERPRISE_ID }}\" }) { clientMutationId invitation { email invitee { login id } } } }"}' \
+            -d "{\"query\":\"mutation { inviteEnterpriseMember(input: { email: \\\"$EMAIL\\\", enterpriseId: \\\"$ENTERPRISE_ID\\\" }) { clientMutationId invitation { email invitee { login id } } } }\"}" \
             https://api.github.com/graphql      
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
