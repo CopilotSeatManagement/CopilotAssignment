@@ -73,9 +73,9 @@ jobs:
             console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID);
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
-              appId: process.env.APPLICATION_ID,
+              appId: Number(process.env.APPLICATION_ID),
               privateKey: process.env.PRIVATE_KEY,
-              installationId: process.env.INSTALLATION_ID
+              installationId: Number(process.env.INSTALLATION_ID)
             });
             const { token } = await auth({ type: "installation" });
             return token ? token : null;
