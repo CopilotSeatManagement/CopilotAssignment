@@ -85,13 +85,11 @@ jobs:
           # Remove leading and trailing quotes if present
           CLEAN_TOKEN=$(echo '${{ steps.get-installation-token.outputs.result }}' | sed 's/^"\(.*\)"$/\1/')
           
-          RESPONSE=$(curl -X POST "https://api.github.com/enterprises/${{ secrets.ENTERPRISE_NAME }}/copilot/selected_users" \
+          curl -X POST "https://api.github.com/enterprises/${{ secrets.ENTERPRISE_NAME }}/copilot/selected_users" \
           -H "Authorization: Bearer ${CLEAN_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          -d "{\"selected_usernames\": [\"${{ github.actor }}\"]}")
-          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
-
+          -d "{\"selected_usernames\": [\"${{ github.actor }}\"]}"
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
         uses: actions/github-script@v7
@@ -99,8 +97,6 @@ jobs:
           script: |
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit(); 
-            const response = '${{ steps.strip-token.outputs.response }}';
-            console.log('Response:', response);
             await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
               issue_number: context.issue.number,
               owner: context.repo.owner,
