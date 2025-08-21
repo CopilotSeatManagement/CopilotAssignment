@@ -55,7 +55,7 @@ jobs:
 
             const installations = await response.json();
             // Find the installation for your org or repo
-            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
+            const installation = installations.find(i => i.target_type === "Enterprise" && i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
             console.log(installation);
             return installation ? installation.id : null;
       # This step gets the installation token
@@ -88,6 +88,7 @@ jobs:
         with:
           script: |
             const { Octokit } = require("@octokit/action");
+            console.log("Github token length: ", process.env.GITHUB_TOKEN.length);
             const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
             const login = context.payload.sender.login;
             const response = await octokit.request('POST /enterprises/{enterprise}/copilot/selected_users', {
