@@ -87,20 +87,17 @@ jobs:
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit();   
-            console.log(context.payload.sender.login)
+            const { Octokit } = require("@octokit/action");
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const login = context.payload.sender.login;
             const response = await octokit.request('POST /enterprises/{enterprise}/copilot/selected_users', {
               enterprise: process.env.ENTERPRISE_NAME,
-              team_slug: 'Internal',
-              role: 'member',
-              selected_usernames: [context.payload.sender.login],
+              selected_usernames: [login],
               headers: {
-                'X-GitHub-Api-Version': '2022-11-28',
-                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+                'X-GitHub-Api-Version': '2022-11-28'
               }
-            })
-            return response.status >= 200 && response.status < 300 ? 'success' : 'failure'
+            });
+            return response.status >= 200 && response.status < 300 ? 'success' : 'failure';
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
         if: steps.assign_license.outcome == 'success'
