@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 20
       # This step installs the @octokit/action npm package
-      - run: npm install @octokit/action
+      - run: npm install @octokit/action @octokit/auth-app
       # This step gets the installation token
       - name: Get Installation Token
         id: get-installation-token
