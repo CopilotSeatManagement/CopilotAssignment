@@ -372,6 +372,7 @@ jobs:
               installationId: process.env.INSTALLATION_ID
             });
             const { token } = await auth({ type: "installation" });
+            console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
             return token ? token : null;
       # This step finds the user's login email
       - name: Get login email
