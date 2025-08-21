@@ -83,13 +83,13 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          INSTALLATION_TOKEN: ${{ steps.get-installation-token.outputs.result }}
+          GITHUB_TOKEN: ${{ steps.get-installation-token.outputs.result }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log("Github token length: ", process.env.INSTALLATION_TOKEN.length);
-            const octokit = new Octokit({ auth: process.env.INSTALLATION_TOKEN });
+            console.log("Github token length: ", process.env.GITHUB_TOKEN.length);
+            const octokit = new Octokit();
             const login = context.payload.sender.login;
             const response = await octokit.request('POST /enterprises/{enterprise}/copilot/selected_users', {
               enterprise: process.env.ENTERPRISE_NAME,
