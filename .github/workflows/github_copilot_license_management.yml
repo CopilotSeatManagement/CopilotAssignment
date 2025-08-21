@@ -83,6 +83,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.get-installation-token.outputs.result }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+          LOGIN: ${{ github.event.sender.login }}
         run: |
           RESPONSE=$(curl -X POST \
             -H "Accept: application/vnd.github+json" \
@@ -93,7 +94,7 @@ jobs:
             -d '{
               "team_slug": "Internal",
               "role": "member",
-              "selected_usernames": ["${{context.payload.sender.login}}"]
+              "selected_usernames": ["'"$LOGIN"'"]
             }')
           echo "Response: $RESPONSE"
           echo "result=$RESPONSE" >> $GITHUB_OUTPUT
