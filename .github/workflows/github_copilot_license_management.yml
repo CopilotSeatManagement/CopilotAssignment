@@ -9,6 +9,7 @@ on:
 env:
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
   ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
   assign_github_copilot_license:
