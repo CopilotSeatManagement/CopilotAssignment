@@ -80,19 +80,29 @@ jobs:
       # This step assigns a GitHub Copilot license to the user who created the issue
       - name: Assign GitHub Copilot license
         id: assign_license
+        continue-on-error: true
+        uses: actions/github-script@v7
         env:
-          GITHUB_TOKEN: ${{ steps.get-installation-token.outputs.result }}
+          GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
-        run: |
-            export GITHUB_TOKEN=$(echo $GITHUB_TOKEN | tr -d '"')
-            echo "GITHUB_TOKEN: $GITHUB_TOKEN"
-            curl -X POST "https://api.github.com/enterprises/${ENTERPRISE_NAME}/copilot/selected_users" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            -d "{\"selected_usernames\": [\"${LOGIN}\"]}"
+        with:
+          script: |
+            const { Octokit } = require("@octokit/action");
+            console.log("Github token length: ", process.env.GH_TOKEN.length);
+            console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
+            const octokit = new Octokit();
+            const login = context.payload.sender.login;
+            const response = await octokit.request('POST /enterprises/{enterprise}/copilot/selected_users', {
+              enterprise: process.env.ENTERPRISE_NAME,
+              selected_usernames: [login],
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            });
+            return response.status >= 200 && response.status < 300 ? 'success' : 'failure';
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
+        if: steps.assign_license.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
@@ -118,6 +128,7 @@ jobs:
             });
       # If the previous step failed, this step comments on the issue to notify about the failure
       - name: Comment GitHub Issue on failure
+        if: steps.assign_license.outcome == 'failure'        
         uses: actions/github-script@v7
         with:
           script: |
