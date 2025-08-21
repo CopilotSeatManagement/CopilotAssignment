@@ -26,6 +26,38 @@ jobs:
           node-version: 20
       # This step installs the @octokit/action npm package
       - run: npm install @octokit/action @octokit/auth-app
+      # This step gets the token
+      - name: Generate a token
+        id: generate-token
+        uses: actions/github-script@v7
+        env:
+          APP_ID: ${{ secrets.APPLICATION_ID }}
+          PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        with:
+          script: |
+            const { createAppAuth } = require("@octokit/auth-app");
+            const auth = createAppAuth({
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY
+            });
+            const { token } = await auth({ type: "app" });
+
+            const response = await fetch("https://api.github.com/app/installations", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github+json"
+              }
+            });
+
+            const installations = await response.json();
+            // Find the installation for your org or repo
+            const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
+            console.log(installation);
+            return installation ? installation.id : null;
       # This step gets the installation token
       - name: Get Installation Token
         id: get-installation-token
