@@ -6,10 +6,12 @@ labels: 'copilot-request' # This label is required and needs to be created in th
 ---
 **Requesting a GitHub Copilot license**
 
-Please be aware that by opening this issue and requesting the GitHub Copilot license, you are committing to utilize the license. We trust that you'll make the most out of this opportunity, leveraging GitHub Copilot to enhance your coding experience.
+Dear AI Innovation Team,
 
-Once your license request is fulfilled, you'll equipped to explore new coding horizons to achieve more. You should receive an email from GitHub with the subject *Your organization has been granted access to GitHub Copilot* letting you know that you now have an active GitHub Copilot license.
+My name is ___________, and I have recently accepted the invitation to join the Critical Software Enterprise after receiving a GitHub email.
 
-Get ready to elevate your coding to infinity and beyond! 🚀
+I would like to request a GitHub Copilot license for this account, as I am interested in leveraging Copilot to enhance my development experience.
 
-Thank you for your commitment and happy coding!
+Thank you for your consideration.
+
+_________

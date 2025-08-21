@@ -6,4 +6,12 @@ labels: 'invitation-request' #This label is required and needs to be created in 
 ---
 **Requesting enterprise invitation**
 
-My name is___________, and I'm working in project ___________ from Platoon. I would like to request an invitation to being a member of the Critical Software Enterprise to get a GitHub Copilot Licence. 
+Dear AI Innovation Team, 
+
+My name is ___________, and I am currently working on the ___________ project within Platoon. I would like to request an invitation to join the Critical Software Enterprise in order to obtain a GitHub Copilot License. 
+
+I confirm that I have already created this GitHub using my @criticalsoftware email address, which appears as main email address in the current GitHub account profile. 
+
+Greetings, 
+
+_________

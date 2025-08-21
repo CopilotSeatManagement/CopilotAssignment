@@ -6,6 +6,8 @@ labels: 'copilot-remove' #This label is required and needs to be created in the 
 ---
 **Removing your GitHub Copilot license**
 
+Dear AI Innovation Team, 
+
 Please be aware that by opening this issue you will request the removal of the GitHub Copilot license, you are indicating your decision to discontinue its usage, it will proceed accordingly to remove the license from your account.
 
 Once your license removal request is fulfilled, the GitHub Copilot functionality will be disabled for your account. You should receive a confirmation email from GitHub informing you that the Copilot license has been successfully removed. If you have any further questions or need assistance, please don't hesitate to reach out.
