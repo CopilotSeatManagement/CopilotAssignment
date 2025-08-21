@@ -69,7 +69,7 @@ jobs:
         with:
           script: |
             console.log('APPLICATION_ID:', process.env.APPLICATION_ID?.slice(0, 4));
-            console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 20));
+            console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 40));
             console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID);
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
