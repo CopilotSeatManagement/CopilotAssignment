@@ -312,6 +312,7 @@ jobs:
             const installation = installations.find(i => i.target_type === "Enterprise" && i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
             console.log(installation);
             return installation ? installation.id : null;
+      # This step gets the installation token
       - name: Get Installation Token
         id: get-installation-token
         uses: actions/github-script@v7
@@ -335,8 +336,8 @@ jobs:
             const { token } = await auth({ type: "installation" });
             return token ? token : null;
       # This step finds the user's login email
-      - name: Invite login email
-        id: invite_login_email
+      - name: Get login email
+        id: get_login_email
         continue-on-error: true
         uses: actions/github-script@v7
         env:
@@ -348,13 +349,6 @@ jobs:
             if (token) {
               console.log('GH_TOKEN type:', typeof(token));
               console.log('GH_TOKEN value:', token);
-              const payload = token.split('.')[1];
-              try {
-                const decoded = Buffer.from(payload, 'base64').toString('utf8');
-                console.log('Decoded GH_TOKEN payload:', decoded);
-              } catch (e) {
-                console.log('Failed to decode GH_TOKEN payload:', e.message);
-              }
               const octokit = new Octokit();
               const response_find = await octokit.graphql(`query {
                 user(login: "${context.payload.sender.login}") {
@@ -368,51 +362,46 @@ jobs:
                   'Authorization': `Bearer ${process.env.GH_TOKEN}`
                 }
               })
-              if (response_find.user.email) {
-                // Invite the user to the enterprise
-                const response_find_enterprise = await octokit.graphql(`query {
-                  enterprise(slug: "${process.env.ENTERPRISE_NAME}") {
-                    id
-                    name
-                  }
-                }`, {
-                  headers: {
-                    'X-GitHub-Api-Version': '2022-11-28',
-                    'Authorization': `Bearer ${process.env.GH_TOKEN}`
-                  }
-                });
-                console.log(response_find_enterprise);
-                const response_invite = await octokit.graphql(`mutation {
-                  inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${response_find_enterprise.id}" }) {
-                    clientMutationId
-                    invitation {
-                      email
-                      invitee {
-                        login
-                        id
-                      }
-                    }
-                  }
-                }`, {
-                  headers: {
-                    'X-GitHub-Api-Version': '2022-11-28',
-                    'Authorization': `Bearer ${process.env.GH_TOKEN}`
-                  }
-                });
-
-                return response_invite.status >= 200 && response_invite.status < 300 ? 'success' : 'failure';
+              console.log(response_find);
+              return response_find.user.email;
+      # This step finds the enterprise id
+      - name: Get Enterprise ID
+        id: get_enterprise_id
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
+          ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
+        with:
+          script: |
+            const { Octokit } = require("@octokit/action");
+            const octokit = new Octokit();
+            const response = await octokit.graphql(`query {
+              enterprise(slug: "${process.env.ENTERPRISE_NAME}") {
+                id
               }
-              else {
-                return 'failure';
+            }`, {
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28',
+                'Authorization': `Bearer ${process.env.GH_TOKEN}`
               }
-            }
-            else {
-              console.error('GH_TOKEN is not defined');
-              return 'failure';
-            }
+            });
+            console.log(response);
+            return response.enterprise.id;
+      # This step invites user email to enterprise
+      - name: Invite User to Enterprise
+        id: invite_user_to_enterprise
+        env:
+          GH_TOKEN: ${{ steps.get-installation-token.outputs.result }}
+          ENTERPRISE_ID: ${{ steps.get_enterprise_id.outputs.result }}
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ steps.get-installation-token.outputs.result }}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -d '{"query":"mutation { inviteEnterpriseMember(input: { email: "${{ steps.get_login_email.outputs.result }}", enterpriseId: "${{ steps.get_enterprise_id.outputs.result }}" }) { clientMutationId invitation { email invitee { login id } } } }"}'
       # If the previous step was successful, this step comments on the issue and closes it
       - name: Comment and close GitHub Issue on success
-        if: steps.invite_login_email.outcome == 'success'
+        if: steps.invite_user_to_enterprise.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
@@ -438,7 +427,7 @@ jobs:
             });
       # If the previous step failed, this step comments on the issue to notify about the failure
       - name: Comment GitHub Issue on failure
-        if: steps.invite_login_email.outcome == 'failure'        
+        if: steps.invite_user_to_enterprise.outcome == 'failure'
         uses: actions/github-script@v7
         with:
           script: |
