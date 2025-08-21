@@ -10,7 +10,6 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID }}
   ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
-  ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
 # This workflow contains two jobs: assign_github_copilot_license and remove_github_copilot_license
 jobs:
   assign_github_copilot_license:
@@ -33,10 +32,8 @@ jobs:
         env:
           APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
@@ -166,10 +163,8 @@ jobs:
         env:
           APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
@@ -334,10 +329,8 @@ jobs:
         env:
           APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
@@ -366,10 +359,8 @@ jobs:
         env:
           APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
           PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          ORGANIZATION_NAME: ${{ secrets.ORGANIZATION_NAME }}
           ENTERPRISE_NAME: ${{ secrets.ENTERPRISE_NAME }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
           script: |
