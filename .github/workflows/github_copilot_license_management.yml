@@ -53,7 +53,7 @@ jobs:
             const installations = await response.json();
             // Find the installation for your org or repo
             const installation = installations.find(i => i.target_type === "Enterprise" && i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
-            console.log(installation);
+            # console.log(installation);
             return installation ? installation.id : null;
       # This step gets the installation token
       - name: Get Installation Token
@@ -65,9 +65,9 @@ jobs:
           INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
           script: |
-            console.log('APPLICATION_ID:', process.env.APPLICATION_ID, 'type:', typeof process.env.APPLICATION_ID);
-            console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 40));
-            console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID, 'type:', typeof process.env.INSTALLATION_ID);
+            # console.log('APPLICATION_ID:', process.env.APPLICATION_ID, 'type:', typeof process.env.APPLICATION_ID);
+            # console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 40));
+            # console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID, 'type:', typeof process.env.INSTALLATION_ID);
 
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
@@ -76,7 +76,7 @@ jobs:
               installationId: Number(process.env.INSTALLATION_ID)
             });
             const { token } = await auth({ type: "installation" });
-            console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
+            # console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
             return token ? token : null;
       # Strip quotes from GITHUB_TOKEN
       - name: Strip quotes from GITHUB_TOKEN and create license
@@ -157,7 +157,7 @@ jobs:
             const installations = await response.json();
             // Find the installation for your org or repo
             const installation = installations.find(i => i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
-            console.log(installation);
+            # console.log(installation);
             return installation ? installation.id : null;
       - name: Get Installation Token
         id: get-installation-token
@@ -168,9 +168,9 @@ jobs:
           INSTALLATION_ID: ${{ steps.generate-token.outputs.result }}
         with:
           script: |
-            console.log('APPLICATION_ID:', process.env.APPLICATION_ID, 'type:', typeof process.env.APPLICATION_ID);
-            console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 40));
-            console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID, 'type:', typeof process.env.INSTALLATION_ID);
+            # console.log('APPLICATION_ID:', process.env.APPLICATION_ID, 'type:', typeof process.env.APPLICATION_ID);
+            # console.log('PRIVATE_KEY starts with:', process.env.PRIVATE_KEY?.slice(0, 40));
+            # console.log('INSTALLATION_ID:', process.env.INSTALLATION_ID, 'type:', typeof process.env.INSTALLATION_ID);
             const { createAppAuth } = require("@octokit/auth-app");
             const auth = createAppAuth({
               appId: Number(process.env.APPLICATION_ID),
@@ -178,7 +178,7 @@ jobs:
               installationId: Number(process.env.INSTALLATION_ID)
             });
             const { token } = await auth({ type: "installation" });
-            console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
+            # console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
             return token ? token : null;
       # This step finds the user's login email
       - name: Invite login email
@@ -190,7 +190,7 @@ jobs:
         with:
           script: |
             const { Octokit } = require("@octokit/action");
-            console.log(`Bearer ${process.env.GH_TOKEN}`);
+            # console.log(`Bearer ${process.env.GH_TOKEN}`);
             const octokit = new Octokit();
             const response_find = await octokit.graphql(`query {
               user(login: "${context.payload.sender.login}") {
@@ -217,7 +217,7 @@ jobs:
                   'Authorization': `Bearer ${process.env.GH_TOKEN}`
                 }
               });
-              console.log(response_find_enterprise);
+              # console.log(response_find_enterprise);
               const response_invite = await octokit.graphql(`mutation {
                 inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${response_find_enterprise.id}" }) {
                   clientMutationId
@@ -327,7 +327,7 @@ jobs:
             const installations = await response.json();
             // Find the installation for your org or repo
             const installation = installations.find(i => i.target_type === "Enterprise" && i.account.slug === process.env.ENTERPRISE_NAME); // or match by account.id, etc.
-            console.log(installation);
+            # console.log(installation);
             return installation ? installation.id : null;
       # This step gets the installation token
       - name: Get Installation Token
@@ -342,14 +342,14 @@ jobs:
         with:
           script: |
             const { createAppAuth } = require("@octokit/auth-app");
-            console.log(process.env.INSTALLATION_ID);
+            # console.log(process.env.INSTALLATION_ID);
             const auth = createAppAuth({
               appId: process.env.APPLICATION_ID,
               privateKey: process.env.PRIVATE_KEY,
               installationId: process.env.INSTALLATION_ID
             });
             const { token } = await auth({ type: "installation" });
-            console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
+            # console.log('Generated token (first 10 chars):', token?.slice(0, 10), 'length:', token?.length);
             return token ? token : null;
       # This step finds the user's login email
       - name: Get login email
@@ -363,8 +363,8 @@ jobs:
             const { Octokit } = require("@octokit/action");
             const token = process.env.GH_TOKEN;
             if (token) {
-              console.log('GH_TOKEN type:', typeof(token));
-              console.log('GH_TOKEN value:', token);
+              # console.log('GH_TOKEN type:', typeof(token));
+              # console.log('GH_TOKEN value:', token);
               const octokit = new Octokit();
               const response_find = await octokit.graphql(`query {
                 user(login: "${context.payload.sender.login}") {
@@ -378,7 +378,7 @@ jobs:
                   'Authorization': `Bearer ${process.env.GH_TOKEN}`
                 }
               });
-              console.log(response_find);
+              # console.log(response_find);
               return response_find.user.email;
             } else {
               return 'failure';
@@ -434,7 +434,7 @@ jobs:
             const { Octokit } = require("@octokit/action");            
             const octokit = new Octokit();
             const email = `${{ steps.get_login_email.outputs.result }}`;
-            console.log('User email:', email);
+            # console.log('User email:', email);
             if (!email.endsWith('@criticalsoftware.com')) { 
               await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
                 issue_number: context.issue.number,
