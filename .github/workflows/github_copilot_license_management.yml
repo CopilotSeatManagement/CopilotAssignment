@@ -96,25 +96,17 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit(); 
-            await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Your GitHub Copilot license is being processed. You will receive an email shortly. <br> <br> Here are some resources to help you get started with GitHub Copilot: <br><ul><li><a href="https://learn.microsoft.com/training/paths/copilot">GitHub Copilot Fundamentals MS Learn Path</a></li><li><a href="https://resources.github.com/learn/pathways/copilot/essentials/essentials-of-github-copilot">Essentials of GitHub Copilot</a></li><li><a href="https://www.youtube.com/playlist?list=PLlrxD0HtieHgr23PS05FIncnih4dH9Na5">Introduction to GitHub Copilot</a></li><li><a href="https://github.com/microsoft/Mastering-GitHub-Copilot-for-Paired-Programming">Mastering GitHub Copilot for AI Paired Programming</a></li></ul>',
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+              body: 'Your GitHub Copilot license is being processed. You will receive an email shortly. <br> <br> Here are some resources to help you get started with GitHub Copilot: <br><ul><li><a href="https://learn.microsoft.com/training/paths/copilot">GitHub Copilot Fundamentals MS Learn Path</a></li><li><a href="https://resources.github.com/learn/pathways/copilot/essentials/essentials-of-github-copilot">Essentials of GitHub Copilot</a></li><li><a href="https://www.youtube.com/playlist?list=PLlrxD0HtieHgr23PS05FIncnih4dH9Na5">Introduction to GitHub Copilot</a></li><li><a href="https://github.com/microsoft/Mastering-GitHub-Copilot-for-Paired-Programming">Mastering GitHub Copilot for AI Paired Programming</a></li></ul>'
             });
-            await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+            await github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'closed',
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+              state: 'closed'
             });
 
   remove_github_copilot_license:
@@ -192,8 +184,8 @@ jobs:
           script: |
             const { Octokit } = require("@octokit/action");
             // console.log(`Bearer ${process.env.GH_TOKEN}`);
-            const octokit = new Octokit();
-            const response_find = await octokit.graphql(`query {
+            const octokitClient = new Octokit();
+            const response_find = await octokitClient.graphql(`query {
               user(login: "${context.payload.sender.login}") {
                 email
                 id
@@ -207,7 +199,7 @@ jobs:
             })
             if (response_find.user.email) {
               // Invite the user to the enterprise
-              const response_find_enterprise = await octokit.graphql(`query {
+              const response_find_enterprise = await octokitClient.graphql(`query {
                 enterprise(slug: "${process.env.ENTERPRISE_NAME}") {
                   id
                   name
@@ -219,7 +211,7 @@ jobs:
                 }
               });
               // console.log(response_find_enterprise);
-              const response_invite = await octokit.graphql(`mutation {
+              const response_invite = await octokitClient.graphql(`mutation {
                 inviteEnterpriseMember(input: { email: "${response_find.user.email}", enterpriseId: "${response_find_enterprise.id}" }) {
                   clientMutationId
                   invitation {
@@ -248,25 +240,17 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit(); 
-            await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Successfully removed the GitHub Copilot license.',
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+              body: 'Successfully removed the GitHub Copilot license.'
             });
-            await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+            await github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'closed',
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+              state: 'closed'
             });
       # If the previous step failed, this step comments on the issue to notify about the failure
       - name: Comment GitHub Issue on failure
@@ -274,17 +258,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit(); 
-            await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Failed removing the GitHub Copilot license. Please contact the organization administrator.',
-              content: 'confused',
-              headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+              body: 'Failed removing the GitHub Copilot license. Please contact the organization administrator.'
             });
   
   request_csw_enterprise_invitation:
@@ -366,8 +344,8 @@ jobs:
             if (token) {
               // console.log('GH_TOKEN type:', typeof(token));
               // console.log('GH_TOKEN value:', token);
-              const octokit = new Octokit();
-              const response_find = await octokit.graphql(`query {
+              const octokitClient = new Octokit();
+              const response_find = await octokitClient.graphql(`query {
                 user(login: "${context.payload.sender.login}") {
                   email
                   id
@@ -403,28 +381,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit(); 
             const email = `${{ steps.get_login_email.outputs.result }}`;
             console.log('User email:', email);
             if (email.endsWith('@criticalsoftware.com')) {
-                await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+                await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: 'The invitation to the Critical Software Enterprise has been sucessfully sent to your email.',
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28'
-                }
+                body: 'The invitation to the Critical Software Enterprise has been sucessfully sent to your email.'
               });
-              await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+              await github.rest.issues.update({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                state: 'closed',
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28'
-                }
+                state: 'closed'
               });
             }
       # If the previous step failed, this step comments on the issue to notify about the failure
@@ -432,19 +402,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/action");            
-            const octokit = new Octokit();
             const email = `${{ steps.get_login_email.outputs.result }}`;
             // console.log('User email:', email);
             if (!email.endsWith('@criticalsoftware.com')) { 
-              await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: 'Failed sending the invitation to the Critical Software Enterprise because email account does not ends with @criticalsoftware.com. Please contact the organization administrator.',
-                content: 'confused',
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28'
-                }
+                body: 'Failed sending the invitation to the Critical Software Enterprise because email account does not ends with @criticalsoftware.com. Please contact the organization administrator.'
               });
             }
